@@ -1,5 +1,5 @@
 {
-  "name": "circonus-irondb-datasource",
+  "name": "circonus-irondb-datasource-parallel-install",
   "version": "0.7.4",
   "description": "IRONdb Data Source for Grafana.",
   "scripts": {
