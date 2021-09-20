@@ -6,26 +6,65 @@ Read more about IRONdb here:
 
 [https://www.circonus.com/irondb/](https://www.circonus.com/irondb/)
 
+## Quick Start
+These instructions will build and run a Docker container with a Grafana instance on port 3000. There will be a pre-configured data source connected to the hosted Circonus API with a graph and alert.
+
+1. [Install Docker](https://docs.docker.com/get-docker/)
+2. [Obtain a Grafana Cloud API Key](https://grafana.com/docs/grafana-cloud/reference/create-api-key/),  needed to sign the plugin.
+3. [Obtain Circonus API Token](https://docs.circonus.com/circonus/integrations/api/api-tokens/), needed to connect to the hosted Circonus API.
+4. export GRAFANA_API_KEY=<From step 2>
+5. export CIRCONUS_API_KEY=<From step 3>
+6. git clone https://github.com/circonus-labs/circonus-irondb-datasource/
+7. Execute ./docker/run-docker.sh
+8. Navigate to <http://localhost:3000/> to access.
+
 ## Installation
 * The default location for the plugins directory is `/var/lib/grafana/plugins`, though the location may be different in your installation, see [http://docs.grafana.org/plugins/installation/](http://docs.grafana.org/plugins/installation/) for more plugin information.
+* "Grafana now [requires backend plugins to be signed](https://grafana.com/docs/grafana/latest/installation/upgrading/#backend-plugins)." Or you can [turn off signature checks](https://grafana.com/docs/grafana/latest/plugins/plugin-signatures/#allow-unsigned-plugins). If you aren't sure which option is right for you, ask your security department. If you think you don't have one of those, congratulations, *you* are the security department. Read through the information linked above and choose the relevant section below.
 
 ### From Releases
 1. Download the desired [release version](https://github.com/circonus-labs/circonus-irondb-datasource/releases).
 
 2. Unzip into plugins directory.
 
-3. Restart Grafana.
+3. Run the following commands in your shell:
+  ```shell
+   cd circonus-irondb-datasource
+   npm install --global yarn
+   yarn install
+   yarn build
+   export GRAFANA_API_KEY=<Obtained from: https://grafana.com/docs/grafana-cloud/reference/create-api-key/>
+   export GRAFANA_TOOLKIT=$(find . -type f -iname "grafana-toolkit.js")
+   node $GRAFANA_TOOLKIT plugin:sign --rootUrls http://localhost:3000/ # Change to match the URL of your Grafana install
+   sudo systemctl start grafana-server # restart if already running
+   ```
 
 ### From GitHub
-1. `git clone https://github.com/circonus-labs/circonus-irondb-datasource.git` into plugins directory.
-
-2. Restart Grafana.
+1. Please install the following prerequisites:
+   *    [Node.js](https://nodejs.org/en/download/) > 12.22.4-r0
+   *    [Yarn](https://www.npmjs.com/package/yarn) > 1.22.10
+   *    [Go](https://golang.org/doc/install) > 1.13.15-r0
+   *    [Mage](https://github.com/magefile/mage) > 1.11.0
+2. Run the following from a priveledged shell:
+   ```shell
+   cd /var/lib/grafana/plugins # or the location of your Grafana plugins directory
+   git clone https://github.com/circonus-labs/circonus-irondb-datasource/
+   cd circonus-irondb-datasource
+   npm install --global yarn
+   yarn install
+   yarn build
+   mage -v
+   export GRAFANA_API_KEY=<Obtained from: https://grafana.com/docs/grafana-cloud/reference/create-api-key/>
+   export GRAFANA_TOOLKIT=$(find . -type f -iname "grafana-toolkit.js")
+   node $GRAFANA_TOOLKIT plugin:sign --rootUrls http://localhost:3000/ # Change to match the URL of your Grafana install
+   sudo systemctl start grafana-server # restart if already running
+   ```
 
 ## Configuration
 
 1. Create a new datasource and select IRONdb from the `Type` drop down.
 
-1. Change the IRONdb configuration options at the bottom of the datasource configuration page.
+2. Change the IRONdb configuration options at the bottom of the datasource configuration page.
 ![](img/irondb-datasource-configuration.png)
 
 ### IRONdb Type
